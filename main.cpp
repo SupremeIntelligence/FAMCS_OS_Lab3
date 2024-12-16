@@ -35,6 +35,9 @@ int main()
 	}
 
 	startEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	continueEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
 	if (startEvent == nullptr)
 	{
 		//
@@ -55,5 +58,7 @@ int main()
 	{
 		//
 	}
+	CloseHandle(stopEvent);
+	CloseHandle(continueEvent);
 	return 0;
 }
