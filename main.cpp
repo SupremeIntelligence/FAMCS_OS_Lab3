@@ -5,9 +5,8 @@
 #include<vector>
 #include<windows.h>
 #include"marker.cpp"
+#include"globals.h"
 using namespace std;
-
-
 
 int main()
 {
@@ -21,8 +20,8 @@ int main()
 		//exception handling
 	}
 
-	vector<int>numbers(size, 0);
-	vector<HANDLE>threads(threadAmount);
+	numbers.resize(size, 0);
+	threads.resize(threadAmount);
 	vector<int>threadIDs(threadAmount);
 
 	for (int i = 0; i < threadAmount; i++)
@@ -35,21 +34,26 @@ int main()
 		}
 	}
 
-
-	HANDLE startEvent;
 	startEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (startEvent == nullptr)
 	{
 		//
 	}
 
-	SetEvent(startEvent);
+	if (SetEvent(startEvent))
+	{
+		//
+	}
 	WaitForMultipleObjects(threadAmount, threads.data(), TRUE, INFINITE);
 
 	for (HANDLE thread : threads)
 	{
 		CloseHandle(thread);
 	}
-	CloseHandle(startEvent);
+
+	if (CloseHandle(startEvent))
+	{
+		//
+	}
 	return 0;
 }
