@@ -8,57 +8,125 @@
 #include"globals.h"
 using namespace std;
 
+
+HANDLE startEvent;
+vector<HANDLE> stopEvents;
+vector<HANDLE> doneEvents;
+vector<int>numbers;
+CRITICAL_SECTION cs;
+
 int main()
 {
+	InitializeCriticalSection(&cs);
+
 	int size, threadAmount;
 	cout << "Enter the size of the array:\t";
 	cin >> size;
 	cout << "Enter the number of threads:\t";
 	cin >> threadAmount;
+	cout << endl;
 	if (threadAmount <= 0)
 	{
 		//exception handling
 	}
 
 	numbers.resize(size, 0);
-	threads.resize(threadAmount);
+	stopEvents.resize(threadAmount);
+	doneEvents.resize(threadAmount);
+	vector<HANDLE>threads(threadAmount);
 	vector<int>threadIDs(threadAmount);
 
 	for (int i = 0; i < threadAmount; i++)
 	{
 		threadIDs[i] = i;
 		threads[i] = CreateThread(NULL, 0, marker, &threadIDs[i], 0, NULL);
+		stopEvents[i] = CreateEvent(NULL, TRUE, FALSE, NULL);
+		doneEvents[i] = CreateEvent(NULL, TRUE, FALSE, NULL);
 		if (threads[i] == nullptr)
 		{
 			//exception handling
 		}
 	}
-
 	startEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	continueEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
 	if (startEvent == nullptr)
 	{
 		//
 	}
 
-	if (SetEvent(startEvent))
+	if (!SetEvent(startEvent))
 	{
 		//
 	}
+	int terminatedThreads = 0;
+	while (true)
+	{
+		if (terminatedThreads == threadAmount)
+		{
+			cout << "All threads finished." << endl;
+			break;
+		}
+
+		bool ThreadsDone = true;
+
+		for (int i = 0; i < threadAmount; i++)
+		{
+			if (WaitForSingleObject(doneEvents[i], 0) != WAIT_OBJECT_0)
+			{
+				ThreadsDone = false;
+				break;
+			}
+		}
+
+		if (ThreadsDone)
+		{
+			EnterCriticalSection(&cs);
+			cout << "[ ";
+			for (int i = 0; i < numbers.size(); i++)
+			{
+				cout << numbers[i] << " ";
+			}
+			cout << "]" << endl;
+			LeaveCriticalSection(&cs);
+
+			int stopThreadID;
+			cout << "Enter thread ID to stop:\t";
+			cin >> stopThreadID;
+			//exception handling
+
+			SetEvent(stopEvents[stopThreadID]);						//подаем указанному потоку сигнал о завершении работы
+			WaitForSingleObject(threads[stopThreadID], INFINITE);	//ожидаем от потока сигнал о завершении работы
+			terminatedThreads++;
+
+			EnterCriticalSection(&cs);
+			cout <<endl<< "[ ";
+			for (int i = 0; i < numbers.size(); i++)
+			{
+				cout << numbers[i] << " ";
+			}
+			cout << "]" << endl;
+			LeaveCriticalSection(&cs);
+
+			for (int i = 0; i < threadAmount; ++i)
+			{
+				if (i != stopThreadID)
+				{
+					ResetEvent(stopEvents[i]);	//переводим сигнал остановки в несигнальное состояние, сообщая другим потокам продолжить работу
+				}
+			}
+		}
+	}
+
 	WaitForMultipleObjects(threadAmount, threads.data(), TRUE, INFINITE);
 
-	for (HANDLE thread : threads)
+	CloseHandle(startEvent);
+	for (int i = 0; i < threadAmount; i++)
 	{
-		CloseHandle(thread);
+		CloseHandle(threads[i]);
+		CloseHandle(stopEvents[i]);
+		CloseHandle(doneEvents[i]);
 	}
 
-	if (CloseHandle(startEvent))
-	{
-		//
-	}
-	CloseHandle(stopEvent);
-	CloseHandle(continueEvent);
+	DeleteCriticalSection(&cs);
 	return 0;
 }

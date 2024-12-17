@@ -5,9 +5,9 @@
 #include<vector>
 
 extern std::vector<int>numbers;
-extern std::vector<HANDLE>threads;
-extern HANDLE startEvent;
-extern HANDLE stopEvent;
-extern HANDLE continueEvent;
+extern HANDLE startEvent;			
+extern std::vector<HANDLE> stopEvents;
+extern std::vector<HANDLE> doneEvents;
+extern CRITICAL_SECTION cs;
 
 #endif // GLOBALS_H
