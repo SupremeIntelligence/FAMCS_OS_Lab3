@@ -11,9 +11,14 @@ endif()
 
 project (OS_Lab3)
 
+add_subdirectory(Marker)
+
 # Добавьте источник в исполняемый файл этого проекта.
-add_executable (OS_Lab3 "main.cpp" "OS_Lab3.h" "marker.cpp" "include/globals.h")
+add_executable (OS_Lab3 "main.cpp")
 target_include_directories (OS_Lab3 PUBLIC include)
+target_include_directories (Marker PUBLIC include)
+
+target_link_libraries(OS_Lab3 PUBLIC Marker)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET OS_Lab3 PROPERTY CXX_STANDARD 20)

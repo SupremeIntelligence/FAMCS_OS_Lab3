@@ -39,6 +39,7 @@ DWORD WINAPI marker(LPVOID lpParameter)
 			cout << "\tAmount of marked array elements:\t" << markedCount << endl;
 			cout << "\tIndex of the element that cannot be marked:\t" << index << endl << endl;
 			LeaveCriticalSection(&cs);
+
 			SetEvent(doneEvents[ID]);						//передаем потоку main сигнал о невозможности продолжения работы
 			WaitForSingleObject(stopEvents[ID], INFINITE);	//ожидаем сигнал завершения работы от потока main
 			if (WaitForSingleObject(stopEvents[ID], 0) == WAIT_OBJECT_0)

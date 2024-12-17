@@ -15,6 +15,16 @@ vector<HANDLE> doneEvents;
 vector<int>numbers;
 CRITICAL_SECTION cs;
 
+void ArrayOutput(const vector<int>& arr)
+{
+	cout << "[ ";
+	for (int i = 0; i < numbers.size(); i++)
+	{
+		cout << numbers[i] << " ";
+	}
+	cout << "]" << endl;
+}
+
 int main()
 {
 	InitializeCriticalSection(&cs);
@@ -81,30 +91,24 @@ int main()
 		if (ThreadsDone)
 		{
 			EnterCriticalSection(&cs);
-			cout << "[ ";
-			for (int i = 0; i < numbers.size(); i++)
-			{
-				cout << numbers[i] << " ";
-			}
-			cout << "]" << endl;
+			cout << endl << "Main output #1:\t";	
+			ArrayOutput(numbers);
 			LeaveCriticalSection(&cs);
 
-			int stopThreadID;
-			cout << "Enter thread ID to stop:\t";
-			cin >> stopThreadID;
-			//exception handling
+			int stopThreadID = -1;
+			do 
+			{
+				cout << "Enter a valid ID of thread you want to stop:\t";
+				cin >> stopThreadID;
+			} while (stopThreadID < 0 || stopThreadID >= threadAmount);
 
 			SetEvent(stopEvents[stopThreadID]);						//подаем указанному потоку сигнал о завершении работы
 			WaitForSingleObject(threads[stopThreadID], INFINITE);	//ожидаем от потока сигнал о завершении работы
 			terminatedThreads++;
 
 			EnterCriticalSection(&cs);
-			cout <<endl<< "[ ";
-			for (int i = 0; i < numbers.size(); i++)
-			{
-				cout << numbers[i] << " ";
-			}
-			cout << "]" << endl;
+			cout << endl << "Main output #2:\t";	
+			ArrayOutput(numbers);
 			LeaveCriticalSection(&cs);
 
 			for (int i = 0; i < threadAmount; ++i)
