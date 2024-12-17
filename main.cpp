@@ -1,7 +1,5 @@
 ﻿// OS_Lab3.cpp: определяет точку входа для приложения.
-//
 
-#include "OS_Lab3.h"
 #include<vector>
 #include<windows.h>
 #include"marker.cpp"

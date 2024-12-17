@@ -17,7 +17,7 @@ add_subdirectory(Marker)
 add_subdirectory(tests)
 
 # Добавьте источник в исполняемый файл этого проекта.
-add_executable (OS_Lab3 "main.cpp" "tests/marker_test.cpp")
+add_executable (OS_Lab3 "main.cpp")
 target_include_directories (OS_Lab3 PUBLIC include)
 target_include_directories (Marker PUBLIC include)
 
